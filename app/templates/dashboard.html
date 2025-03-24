@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: linear-gradient(to right, #6db3f2, #1e69de);
+            background-image: url("{{ url_for('static', filename='img.jpg') }}"); /* Image de fond */
+            background-size: cover; /* Couvre toute la page */
+            background-position: center; /* Centre l'image */
+            background-repeat: no-repeat; /* Pas de répétition */
+        }
+
+        .container {
+            text-align: center;
+            color: #f8f6ec;
+            padding: 30px;
+            border-radius: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+
+
+        .port-link-container .port-link {
+            display: inline-block;
+            margin: 0 10px;
+            width: 150px; 
+            height: 150px; 
+            background-size: cover;
+            line-height: 150px;
+            margin: 10px auto;
+            background-position: center; 
+            background-repeat: no-repeat;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 1.2em;
+            overflow: hidden;    
+        }
+
+        .port-link-container .havre-icon {
+            background-image: url("{{ url_for('static', filename='t.png') }}");
+        }
+
+        .port-link-container .dk-icon {
+            background-image: url("{{ url_for('static', filename='dk.png') }}");
+        }
+
+        .port-link-container .port-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3);
+            opacity: 0.5;
+        }
+
+        .port-name {
+            display: block;
+            font-size: 1.2em;
+            color: #e26218e8;
+            text-decoration: none;
+            text-align: justify;
+        }
+        .dashboard-button.correction {
+            background-color: #f39c12;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .dashboard-button.correction:hover {
+            background-color: #d68910;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue sur PortLive</h1>
+        <p>PortLive est un outil de suivi des activités portuaires en temps réel. Sélectionnez un port pour commencer.</p>
+        <div class="port-link-container">
+            <a href="/havre_port" class="port-link havre-icon"></a>
+            <a href="/dk_port" class="port-link dk-icon"></a>
+            <a href="{{ url_for('edit.corriger_pavillons') }}" class="dashboard-button correction" Corriger pavillons manquants </a>
+
+        </div>
+    </div>
+</body>
+</html>

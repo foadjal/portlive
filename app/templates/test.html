@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Téléchargement des fichiers</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: url("{{ url_for('static', filename='img.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(0,0,0,0.6);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #f0db4f;
+        }
+
+        .file-link {
+            margin: 10px 0;
+            display: block;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .section-title {
+            margin-top: 30px;
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>✅ Fichier généré avec succès</h2>
+        <a class="file-link" href="/download/{{ nom_fichier }}">📥 Télécharger le fichier actuel</a>
+
+        <h2 class="section-title">📂 Historique des extractions</h2>
+        {% for fichier in fichiers %}
+            <a class="file-link" href="/download/{{ fichier }}">{{ fichier }}</a>
+        {% endfor %}
+    </div>
+</body>
+</html>

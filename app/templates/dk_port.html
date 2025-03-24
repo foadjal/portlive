@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <title>Formulaire de Connexion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+            background-image: url("{{ url_for('static', filename='img.jpg') }}"); /* Image de fond */
+            background-size: cover; /* Couvre toute la page */
+            background-position: center; /* Centre l'image */
+            background-repeat: no-repeat;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: transparent;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #f32e2e;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+         #loading-message {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+
+        #progress-container {
+            background: transparent;
+            height: 20px;
+            width: 100%;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        #progress-bar {
+            background-color: #4caf50;
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.5s ease-in-out;
+            animation: progress-animation 3s infinite alternate;
+        }
+
+        @keyframes progress-animation {
+            0% {
+                transform: scaleX(0.1);
+            }
+            100% {
+                transform: scaleX(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Connexion</h2>
+        <form action="/dk_port" method="post" onsubmit="showLoadingMessage()">
+            <label for="nom_utilisateur">Nom d'utilisateur:</label><br>
+            <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
+            <label for="mot_de_passe">Mot de passe:</label><br>
+            <input type="password" id="mot_de_passe" name="mot_de_passe" required><br><br>
+            <input type="submit" value="Se Connecter">
+        </form>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="loading-message">Veuillez attendre le chargement de votre fichier...</div>
+    </div>
+    <script>
+        function showLoadingMessage() {
+            document.getElementById('loading-message').style.display = 'block';
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io.connect();
+        // Écoute de l'événement 'progress_update' depuis le serveur
+        socket.on('progress_update', function(data) {
+            // Mise à jour de la barre de progression dans l'interface utilisateur
+            var progress = parseFloat(data.progress); // Récupération des données de progression
+            // Mettre à jour la barre de progression dans l'interface utilisateur avec la nouvelle valeur de progression
+            document.getElementById('progress-bar').style.width = progress + '%';
+        });
+    </script>
+</body>
+
+</html>
