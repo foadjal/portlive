@@ -126,7 +126,8 @@
 <body>
     <div class="container">
         <h1>Port du Havre</h1>
-        <form id="search-form" action="{{ url_for('havre.havre_port') }}" method="post" >
+        <form id="search-form" action="{{ url_for('havre.havre_port') }}" method="post">
+            {{ csrf_token()|safe }}
             <label for="date_debut">Date et heure de début :</label>
             <input type="datetime-local" id="date_debut" name="date_debut" required>
             <label for="date_fin">Date et heure de fin :</label>

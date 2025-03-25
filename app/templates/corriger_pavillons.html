@@ -21,6 +21,7 @@
     {% for imo, pavillon in pavillons_vides %}
     <tr>
         <form method="POST">
+            {{ csrf_token()|safe }}
             <td>{{ imo }}</td>
             <td>{{ pavillon }}</td>
             <td>
