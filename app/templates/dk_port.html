@@ -105,6 +105,7 @@
     <div class="container">
         <h2>Connexion</h2>
         <form action="/dk_port" method="post" onsubmit="showLoadingMessage()">
+            {{ csrf_token()|safe }}
             <label for="nom_utilisateur">Nom d'utilisateur:</label><br>
             <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
             <label for="mot_de_passe">Mot de passe:</label><br>

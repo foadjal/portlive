@@ -6,3 +6,7 @@ openpyxl
 beautifulsoup4
 pycountry
 pytz
+Flask-WTF
+python-dotenv
+flask-talisman
+
