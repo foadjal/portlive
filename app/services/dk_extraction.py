@@ -1,4 +1,3 @@
-# app/services/dk_extraction.py
 from flask import render_template
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -14,42 +13,46 @@ from app.services.utils import (
 )
 from app.services.vessel_lookup import get_vessel_flag
 
+
+
 def extract_dunkerque_data(request):
-    options = Options()
-    driver = webdriver.Chrome(options=options)
-    driver.maximize_window()
-
-    username_xpath = '//*[@id="Contenu_tbxUser"]'
-    password_xpath = '//*[@id="Contenu_tbxUserKey"]'
-    url = 'https://sirene.dunkerque-port.fr/Application/Login.aspx'
-
-    driver.get(url)
-    connexion_reussie = False
-
-    while not connexion_reussie:
-        username = request.form['nom_utilisateur']
-        password = request.form['mot_de_passe']
-
-        username_field = driver.find_element(By.XPATH, username_xpath)
-        password_field = driver.find_element(By.XPATH, password_xpath)
-
-        username_field.clear()
-        password_field.clear()
-        username_field.send_keys(username)
-        password_field.send_keys(password)
-
-        driver.find_element(By.XPATH, '//*[@id="Contenu_bpValide"]').click()
-        driver.implicitly_wait(2)
-
-        try:
-            driver.find_element(By.XPATH, '/html/body/form/div[3]/nav/ul/li[1]/ul/li[2]/a/span')
-            connexion_reussie = True
-        except:
-            e = "Identifiant ou mot de passe incorrect. Veuillez réessayer."
-            driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/button/span[1]').click()
-            return render_template('error.html', error_message=e)
-
+    driver = None
     try:
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--window-size=1920,1080')
+
+        remote_url = os.getenv("SELENIUM_REMOTE_URL", "http://selenium:4444/wd/hub")
+        driver = webdriver.Remote(command_executor=remote_url, options=options)
+
+        # Connexion
+        username_xpath = '//*[@id="Contenu_tbxUser"]'
+        password_xpath = '//*[@id="Contenu_tbxUserKey"]'
+        url = 'https://sirene.dunkerque-port.fr/Application/Login.aspx'
+        driver.get(url)
+        connexion_reussie = False
+
+        while not connexion_reussie:
+            username = request.form['nom_utilisateur']
+            password = request.form['mot_de_passe']
+
+            driver.find_element(By.XPATH, username_xpath).send_keys(username)
+            driver.find_element(By.XPATH, password_xpath).send_keys(password)
+            driver.find_element(By.XPATH, '//*[@id="Contenu_bpValide"]').click()
+            driver.implicitly_wait(2)
+
+            try:
+                driver.find_element(By.XPATH, '/html/body/form/div[3]/nav/ul/li[1]/ul/li[2]/a/span')
+                connexion_reussie = True
+            except:
+                e = "Identifiant ou mot de passe incorrect. Veuillez réessayer."
+                driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/button/span[1]').click()
+                return render_template('error.html', error_message=e)
+
+        # Extraction des données
         xpath_navire_data = '//*[@id="ContenuTimer_UpdatePnlAttendu"]'
         navire_html = get_element_html(driver, xpath_navire_data)
         divs = find_div_with_viewbox(navire_html)
@@ -58,6 +61,7 @@ def extract_dunkerque_data(request):
         df = convertion(df)
         df = transformer_date(df)
 
+        # Nettoyage
         df.rename(columns={
             'Nom Navire': 'NOM',
             'Pavillon': 'NATION',
@@ -112,6 +116,15 @@ def extract_dunkerque_data(request):
 
     except Exception as e:
         return render_template('error.html', error_message=str(e))
+
+    finally:
+        try:
+            if driver:
+                driver.quit()
+        except Exception as quit_err:
+            print(f"[!] Erreur lors du driver.quit() : {quit_err}")
+
+
 
 def enrichir_pavillons(df):
     df['NATION'] = df.get('NATION', '  ')

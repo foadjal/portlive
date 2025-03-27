@@ -7,11 +7,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import pycountry
 from pytz import timezone
-import re
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
-from datetime import datetime, time
+from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from io import StringIO
@@ -206,17 +205,25 @@ def format_excel(data1, data2, port_name, nom):
 
     wb.save(os.path.join("generated", nom))
 
+def get_remote_driver():
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920,1080')
 
+    remote_url = os.getenv("SELENIUM_REMOTE_URL", "http://selenium:4444/wd/hub")
+
+    return webdriver.Remote(
+        command_executor=remote_url,
+        options=options
+    )
 
 
 def create_df2(lien_page, xpath_colonne_bateau, id_table):
-    options = Options()
-    options.add_argument('--headless')  # si tu veux voir le navigateur : commente cette ligne
-    driver = webdriver.Chrome(options=options)
-    driver.maximize_window()
+    driver = get_remote_driver()
     driver.get(lien_page)
-    driver.implicitly_wait(2)
-
     try:
         # On lit directement le tableau par son ID depuis le HTML
         df = pd.read_html(StringIO(driver.page_source), attrs={'id': str(id_table)}, header=0)[0]

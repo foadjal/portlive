@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request
 from app.services.havre_extraction import extract_havre_data
 
-havre_bp = Blueprint('havre', __name__)
+havre_bp = Blueprint('havre', __name__, url_prefix='/havre_port')
 
 @havre_bp.route('/', methods=['GET', 'POST'])
 def havre_port():

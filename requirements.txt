@@ -9,4 +9,10 @@ pytz
 Flask-WTF
 python-dotenv
 flask-talisman
+requests
+lxml
+eventlet
+html5lib
+pytest
+
 

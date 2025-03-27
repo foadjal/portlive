@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request
 from app.services.dk_extraction import extract_dunkerque_data
 
-dk_bp = Blueprint('dk', __name__)
+dk_bp = Blueprint('dk', __name__, url_prefix='/dk_port')
 
 @dk_bp.route('/', methods=['GET', 'POST'])
 def dk_port():
