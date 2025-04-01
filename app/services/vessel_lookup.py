@@ -67,9 +67,9 @@ def get_vessel_flag(imo_number):
             print(f"🌐 Erreur de récupération pour IMO {imo_number}: {e}")
 
         # On insère quand même l'IMO avec un flag vide pour correction manuelle
-        c.execute('INSERT INTO vessel_flags (imo_number, flag) VALUES (?, ?)', (imo_number, ' '))
+        c.execute('INSERT INTO vessel_flags (imo_number, flag) VALUES (?, ?)', (imo_number, ''))
         conn.commit()
-        return ' '
+        return ''
 
 
 
