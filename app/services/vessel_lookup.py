@@ -31,45 +31,73 @@ def convert_country_to_iso2(country_name):
         return '  '
 
 
+import os
+import sqlite3
+import requests
+from bs4 import BeautifulSoup
+import re
+from .utils import convert_country_to_iso2  # ou adapter si import local
+
+# Chemin absolu vers le fichier DB
+DB_PATH = os.path.join(os.path.dirname(__file__), "../database/vessel_flags.db")
+
 def get_vessel_flag(imo_number):
-    # Vérifie d'abord si le pavillon est déjà stocké
-    with sqlite3.connect(DB_PATH) as conn:
-        c = conn.cursor()
-        c.execute('SELECT flag FROM vessel_flags WHERE imo_number = ?', (imo_number,))
-        result = c.fetchone()
-        if result:
-            return result[0]
+    print(f"[INFO] 📦 Recherche pavillon pour IMO {imo_number}")
+    print(f"[DEBUG] Utilisation de la base: {DB_PATH}")
 
-        # Sinon on va le chercher en ligne
-        url = f'https://www.vesselfinder.com/vessels/details/{imo_number}'
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
-        }
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            c = conn.cursor()
 
-        try:
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'html.parser')
+            # 1. Vérifie si le pavillon est déjà stocké
+            c.execute('SELECT flag FROM vessel_flags WHERE imo_number = ?', (imo_number,))
+            result = c.fetchone()
+            if result and result[0].strip():
+                print(f"[INFO] ✅ Pavillon trouvé en base : {result[0]}")
+                return result[0]
 
-            flag_cell = soup.find('td', string=re.compile(r'\bFlag\b', re.IGNORECASE))
-            if flag_cell:
-                flag_value = flag_cell.find_next_sibling('td')
-                if flag_value:
-                    raw_flag = flag_value.text.strip()
-                    iso2 = convert_country_to_iso2(raw_flag)
+            # 2. Tente une récupération en ligne
+            url = f'https://www.vesselfinder.com/vessels/details/{imo_number}'
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+            }
 
-                    # On stocke le résultat
-                    c.execute('INSERT INTO vessel_flags (imo_number, flag) VALUES (?, ?)', (imo_number, iso2))
-                    conn.commit()
-                    return iso2
+            try:
+                response = requests.get(url, headers=headers, timeout=10)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.content, 'html.parser')
 
-        except Exception as e:
-            print(f"🌐 Erreur de récupération pour IMO {imo_number}: {e}")
+                flag_cell = soup.find('td', string=re.compile(r'\bFlag\b', re.IGNORECASE))
+                if flag_cell:
+                    flag_value = flag_cell.find_next_sibling('td')
+                    if flag_value:
+                        raw_flag = flag_value.text.strip()
+                        iso2 = convert_country_to_iso2(raw_flag)
 
-        # On insère quand même l'IMO avec un flag vide pour correction manuelle
-        c.execute('INSERT INTO vessel_flags (imo_number, flag) VALUES (?, ?)', (imo_number, ''))
-        conn.commit()
+                        c.execute(
+                            'INSERT OR REPLACE INTO vessel_flags (imo_number, flag) VALUES (?, ?)',
+                            (imo_number, iso2)
+                        )
+                        conn.commit()
+                        print(f"[INFO] 🏴 Pavillon récupéré et enregistré : {iso2}")
+                        return iso2
+
+            except Exception as e:
+                print(f"[WARN] 🌐 Erreur de récupération en ligne pour IMO {imo_number}: {e}")
+
+            # 3. Si rien trouvé → on insère une ligne vide pour traitement manuel
+            c.execute(
+                'INSERT OR IGNORE INTO vessel_flags (imo_number, flag) VALUES (?, ?)',
+                (imo_number, '')
+            )
+            conn.commit()
+            print(f"[INFO] ⛔ IMO inséré pour correction manuelle : {imo_number}")
+            return ''
+
+    except Exception as e:
+        print(f"[ERROR] ❌ Erreur critique avec la base de données : {e}")
         return ''
+
 
 
 
