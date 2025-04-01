@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - selenium
+    environment:
+      - SELENIUM_REMOTE_URL=http://selenium:4444/wd/hub
+    volumes:
+      - ./vessel_flags.db:/app/vessel_flags.db
+
+  selenium:
+    image: selenium/standalone-chrome:latest
+    shm_size: 2gb
+    environment:
+      - SE_NODE_MAX_SESSIONS=1
+      - SE_SESSION_REQUEST_TIMEOUT=60
