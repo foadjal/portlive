@@ -8,7 +8,7 @@ services:
     environment:
       - SELENIUM_REMOTE_URL=http://selenium:4444/wd/hub
     volumes:
-      - ./vessel_flags.db:/app/vessel_flags.db
+      - ./database/vessel_flags.db:/app/database/vessel_flags.db
 
   selenium:
     image: selenium/standalone-chrome:latest
