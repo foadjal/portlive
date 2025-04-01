@@ -7,7 +7,7 @@ import os
 
 # Chemin absolu vers la base de données
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-DB_PATH = os.path.join(BASE_DIR, 'database', 'vessel_flags.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), "../database/vessel_flags.db")
 
 
 def init_flag_db():
@@ -39,7 +39,7 @@ import re
 from .utils import convert_country_to_iso2  # ou adapter si import local
 
 # Chemin absolu vers le fichier DB
-DB_PATH = os.path.join(os.path.dirname(__file__), "../database/vessel_flags.db")
+
 
 def get_vessel_flag(imo_number):
     print(f"[INFO] 📦 Recherche pavillon pour IMO {imo_number}")
