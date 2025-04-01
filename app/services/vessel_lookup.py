@@ -65,7 +65,15 @@ def get_vessel_flag(imo_number):
 
         except Exception as e:
             print(f"🌐 Erreur de récupération pour IMO {imo_number}: {e}")
+            # Si erreur ou aucun flag trouvé, insérer un pavillon vide pour correction manuelle
+            try:
+                c.execute('INSERT OR IGNORE INTO vessel_flags (imo_number, flag) VALUES (?, ?)', (imo_number, '  '))
+                conn.commit()
+            except Exception as db_err:
+                print(f"❌ Erreur insertion IMO vide dans la base : {db_err}")
+
             return '  '
+
 
 
 def update_flag(imo, pavillon):
