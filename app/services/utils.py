@@ -232,3 +232,14 @@ def create_df2(lien_page, xpath_colonne_bateau, id_table):
     except Exception as e:
         driver.quit()
         raise Exception(f"Erreur lors de la lecture du tableau HTML : {str(e)}")
+
+
+# app/services/utils.py
+
+import pycountry
+
+def convert_country_to_iso2(country_name):
+    try:
+        return pycountry.countries.lookup(country_name).alpha_2
+    except Exception:
+        return ''
